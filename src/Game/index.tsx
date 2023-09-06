@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import classnames from "classnames"
 
 const Home = () => {
@@ -57,10 +57,11 @@ const Home = () => {
   }
 
   const getTimeElapsed = () => {
-    return ((Date.now() - startTime.current) / 1000).toFixed(2)
+    return (((Date.now() - startTime.current) / 1000) / 60).toFixed(2)
   }
 
   const restart = () => {
+    startTime.current = Date.now()
     setSolved([])
   }
 
