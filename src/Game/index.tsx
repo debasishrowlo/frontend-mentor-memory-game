@@ -91,7 +91,7 @@ const Home = () => {
           <div className="fixed inset-0 bg-black opacity-25"></div>
           <Dialog.Panel className="p-4 relative z-10 bg-white">
             <div>
-              <p className="text-center">Game Over</p>
+              <p className="text-center">You did it!</p>
               <p className="text-center">Moves Taken: {moveCount}</p>
               <p className="text-center">Time elapsed: {getTimeElapsed()}</p>
               <button type="button" onClick={restart}>Restart</button>
