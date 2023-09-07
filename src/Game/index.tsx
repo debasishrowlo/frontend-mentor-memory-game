@@ -12,13 +12,11 @@ const Home = () => {
   const cellsPerRow = 4
   const [cell1, setCell1] = useState<number|null>(null)
   const [cell2, setCell2] = useState<number|null>(null)
-  const [solved, setSolved] = useState<number[]>([
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15
-  ])
+  const [solved, setSolved] = useState<number[]>([])
   const [moveCount, setMoveCount] = useState(0)
   const startTime = useRef(Date.now())
 
-  const gameOver = grid.length === solved.length
+  const isGameOver = grid.length === solved.length
 
   const isHidden = (index:number) => {
     if (index === cell1 || index === cell2) {
