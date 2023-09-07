@@ -1,5 +1,6 @@
 import { useRef, useState } from "react"
 import classnames from "classnames"
+import { Dialog } from "@headlessui/react"
 
 const Home = () => {
   const grid = [
@@ -87,14 +88,19 @@ const Home = () => {
           })}
         </div>
       </div>
-      {gameOver && (
-        <div>
-          <p className="text-center">Game Over</p>
-          <p className="text-center">Moves Taken: {moveCount}</p>
-          <p className="text-center">Time elapsed: {getTimeElapsed()}</p>
-          <button type="button" onClick={restart}>Restart</button>
+      <Dialog open={isGameOver} onClose={() => {}}>
+        <div className="fixed inset-0 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black opacity-25"></div>
+          <Dialog.Panel className="p-4 relative z-10 bg-white">
+            <div>
+              <p className="text-center">Game Over</p>
+              <p className="text-center">Moves Taken: {moveCount}</p>
+              <p className="text-center">Time elapsed: {getTimeElapsed()}</p>
+              <button type="button" onClick={restart}>Restart</button>
+            </div>
+          </Dialog.Panel>
         </div>
-      )}
+      </Dialog>
     </>
   )
 }
