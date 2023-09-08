@@ -44,9 +44,10 @@ const generateGrid = (size:number) => {
 }
 
 const Home = () => {
-  const gridRef = useRef(generateGrid(16))
+  const gridSize = 4
+  const gridRef = useRef(generateGrid(gridSize * gridSize))
   const grid = gridRef.current
-  const cellsPerRow = 4
+  const cellsPerRow = gridSize
   const [cell1, setCell1] = useState<number|null>(null)
   const [cell2, setCell2] = useState<number|null>(null)
   const [solved, setSolved] = useState<number[]>([])
@@ -108,7 +109,7 @@ const Home = () => {
   return (
     <>
       <div className="w-full h-screen flex items-center justify-center">
-        <div className="flex flex-wrap" style={{ width: "350px" }}>
+        <div className="flex flex-wrap" style={{ width: "500px" }}>
           {grid.map((num, index) => {
             const hidden = isHidden(index)
 
