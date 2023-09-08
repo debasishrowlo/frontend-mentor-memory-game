@@ -51,7 +51,7 @@ const Home = () => {
   const [cell2, setCell2] = useState<number|null>(null)
   const [solved, setSolved] = useState<number[]>([])
   const [moveCount, setMoveCount] = useState(0)
-  const startTime = useRef(Date.now())
+  const [startTime, setStartTime] = useState(null)
 
   const isGameOver = grid.length === solved.length
 
@@ -65,6 +65,10 @@ const Home = () => {
 
   const handleCellClick = (index:number) => {
     if (!isHidden(index)) { return }
+
+    if (startTime === null) {
+      setStartTime(Date.now())
+    }
 
     setMoveCount(moveCount + 1)
 
@@ -93,11 +97,11 @@ const Home = () => {
   }
 
   const getTimeElapsed = () => {
-    return elapsed(startTime.current, Date.now())
+    return elapsed(startTime, Date.now())
   }
 
   const restart = () => {
-    startTime.current = Date.now()
+    setStartTime(Date.now())
     setSolved([])
   }
 
