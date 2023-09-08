@@ -2,13 +2,50 @@ import { useRef, useState } from "react"
 import classnames from "classnames"
 import { Dialog } from "@headlessui/react"
 
+const elapsed = (startTime:number, endTime:number) => {
+  let result = ""
+
+  const timeInMs = endTime - startTime
+
+  let diff = timeInMs / 1000
+  let seconds = Math.round(diff % 60)
+  let secondsText = seconds.toString()
+  if (seconds < 10) { secondsText = `0${seconds}` }
+
+  diff = Math.round(diff / 60)
+  const minutes = Math.round(diff % 60)
+
+  diff = Math.round(diff / 60)
+  result = `${minutes}:${secondsText}`
+
+  const hours = Math.round(diff % 24)
+  if (hours > 0) {
+    let minutesText = minutes.toString()
+    if (minutes < 10) { minutesText = `0${minutes}` }
+
+    result = `${hours}:${minutesText}:${secondsText}`
+  }
+
+  return result
+}
+
+const generateGrid = (size:number) => {
+  let grid = Array.from(Array(size / 2).keys()).map(num => num + 1)
+  grid = [...grid, ...grid]
+
+  for (let i = grid.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const s = grid[i] 
+    grid[i] = grid[j]
+    grid[j] = s
+  }
+
+  return grid
+}
+
 const Home = () => {
-  const grid = [
-    1, 6, 2, 5,
-    8, 3, 4, 7,
-    5, 2, 1, 6,
-    7, 4, 8, 3,
-  ]
+  const gridRef = useRef(generateGrid(16))
+  const grid = gridRef.current
   const cellsPerRow = 4
   const [cell1, setCell1] = useState<number|null>(null)
   const [cell2, setCell2] = useState<number|null>(null)
@@ -56,7 +93,7 @@ const Home = () => {
   }
 
   const getTimeElapsed = () => {
-    return (((Date.now() - startTime.current) / 1000) / 60).toFixed(2)
+    return elapsed(startTime.current, Date.now())
   }
 
   const restart = () => {
