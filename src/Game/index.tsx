@@ -2,35 +2,10 @@ import { useRef, useState } from "react"
 import classnames from "classnames"
 import { Dialog } from "@headlessui/react"
 
-const elapsed = (startTime:number, endTime:number) => {
-  let result = ""
-
-  const timeInMs = endTime - startTime
-
-  let diff = timeInMs / 1000
-  let seconds = Math.round(diff % 60)
-  let secondsText = seconds.toString()
-  if (seconds < 10) { secondsText = `0${seconds}` }
-
-  diff = Math.round(diff / 60)
-  const minutes = Math.round(diff % 60)
-
-  diff = Math.round(diff / 60)
-  result = `${minutes}:${secondsText}`
-
-  const hours = Math.round(diff % 24)
-  if (hours > 0) {
-    let minutesText = minutes.toString()
-    if (minutes < 10) { minutesText = `0${minutes}` }
-
-    result = `${hours}:${minutesText}:${secondsText}`
-  }
-
-  return result
-}
-
-const generateGrid = (size:number) => {
-  let grid = Array.from(Array(size / 2).keys()).map(num => num + 1)
+const generateGrid = (cells:number) => {
+  let grid = Array
+    .from(Array(Math.round(cells / 2)).keys())
+    .map(num => num + 1)
   grid = [...grid, ...grid]
 
   for (let i = grid.length - 1; i > 0; i--) {
@@ -43,8 +18,11 @@ const generateGrid = (size:number) => {
   return grid
 }
 
-const Home = () => {
-  const gridSize = 4
+const Game = ({
+  gridSize,
+} : {
+  gridSize: number
+}) => {
   const gridRef = useRef(generateGrid(gridSize * gridSize))
   const grid = gridRef.current
   const cellsPerRow = gridSize
@@ -98,7 +76,31 @@ const Home = () => {
   }
 
   const getTimeElapsed = () => {
-    return elapsed(startTime, Date.now())
+    let result = ""
+
+    const endTime = Date.now()
+    const timeInMs = endTime - startTime
+
+    let diff = timeInMs / 1000
+    let seconds = Math.round(diff % 60)
+    let secondsText = seconds.toString()
+    if (seconds < 10) { secondsText = `0${seconds}` }
+
+    diff = Math.round(diff / 60)
+    const minutes = Math.round(diff % 60)
+
+    diff = Math.round(diff / 60)
+    result = `${minutes}:${secondsText}`
+
+    const hours = Math.round(diff % 24)
+    if (hours > 0) {
+      let minutesText = minutes.toString()
+      if (minutes < 10) { minutesText = `0${minutes}` }
+
+      result = `${hours}:${minutesText}:${secondsText}`
+    }
+
+    return result
   }
 
   const restart = () => {
@@ -145,4 +147,4 @@ const Home = () => {
   )
 }
 
-export default Home
+export default Game
