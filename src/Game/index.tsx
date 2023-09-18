@@ -1,47 +1,84 @@
 import { useRef, useState } from "react"
-import classnames from "classnames"
 import { Dialog } from "@headlessui/react"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
   faAnchor, 
+  faBomb,
   faBug,
   faCar,
+  faCloud,
+  faCompass,
+  faFire,
   faFlask, 
   faFutbol, 
+  faGhost,
   faHandSpock,
   faMoon,
+  faRocket,
   faSnowflake,
   faSun,
   faTurkishLiraSign,
-  faWandMagicSparkles
+  faUmbrella,
+  faWandMagicSparkles,
 } from '@fortawesome/free-solid-svg-icons'
 
 import { gameTypes } from '@/App'
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
 
-const generateIconGrid = (cellCount:number) => {
-  let grid = Array
-    .from(Array(Math.round(cellCount / 2)).keys())
-    .map(num => num + 1)
-  grid = [...grid, ...grid]
+const shuffle = (arr:any[]) => {
+  const result = [...arr]
 
-  return grid
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const s = result[i] 
+    result[i] = result[j]
+    result[j] = s
+  }
+
+  return result
 }
 
 const generateNumberGrid = (cellCount:number) => {
-  let grid = Array
+  const grid = Array
     .from(Array(Math.round(cellCount / 2)).keys())
     .map(num => num + 1)
-  grid = [...grid, ...grid]
 
-  for (let i = grid.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const s = grid[i] 
-    grid[i] = grid[j]
-    grid[j] = s
+  return shuffle([...grid, ...grid])
+}
+
+type IconMap = {
+  [key:number]: IconProp,
+}
+
+const generateIconMap = (cellCount:number) => {
+  const iconMap:IconMap = {}
+
+  const icons = shuffle([
+    faAnchor, 
+    faBomb,
+    faBug,
+    faCar,
+    faCloud,
+    faCompass,
+    faFire,
+    faFlask, 
+    faFutbol, 
+    faGhost,
+    faHandSpock,
+    faMoon,
+    faRocket,
+    faSnowflake,
+    faSun,
+    faTurkishLiraSign,
+    faUmbrella,
+    faWandMagicSparkles,
+  ])
+
+  for (let i = 0; i < (cellCount / 2); i++) {
+    iconMap[i + 1] = icons[i]
   }
 
-  return grid
+  return iconMap
 }
 
 const Game = ({
@@ -52,30 +89,20 @@ const Game = ({
   gameType: gameTypes,
 }) => {
   const cellCount = gridSize * gridSize
-  const gridRef = useRef(
-    generateNumberGrid(cellCount)
-    // gameType === gameTypes.numbers
-    //   ? generateNumberGrid(cellCount)
-    //   : generateIconGrid(cellCount)
-  )
+
+  const gridRef = useRef(generateNumberGrid(cellCount))
   const grid = gridRef.current
-  // const iconRef = useRef<{[key:number]: IconProp}>({
-  //   1: faEnvelope,
-  //   2: faEnvelope,
-  //   3: faEnvelope,
-  //   4: faEnvelope,
-  //   5: faEnvelope,
-  //   6: faEnvelope,
-  //   7: faEnvelope,
-  //   8: faEnvelope,
-  // })
-  // const icons = iconRef.current
-  const cellsPerRow = gridSize
+
+  const iconMapRef = useRef<IconMap>(generateIconMap(cellCount))
+  const iconMap = iconMapRef.current
+
   const [cell1, setCell1] = useState<number|null>(null)
   const [cell2, setCell2] = useState<number|null>(null)
   const [solved, setSolved] = useState<number[]>([])
   const [moveCount, setMoveCount] = useState(0)
   const [startTime, setStartTime] = useState(null)
+
+  const cellsPerRow = gridSize
 
   const isGameOver = grid.length === solved.length
 
@@ -161,6 +188,10 @@ const Game = ({
           {grid.map((num, index) => {
             const hidden = isHidden(index)
 
+            const symbol = (gameType === gameTypes.numbers)
+              ? num
+              : <FontAwesomeIcon icon={iconMap[num]} className="text-40" />
+
             return (
               <button 
                 key={index} 
@@ -171,10 +202,7 @@ const Game = ({
                 {hidden && (
                   <div className="absolute inset-0 bg-black"></div>
                 )}
-                {!hidden && (num)}
-                {/* {gameType === gameTypes.numbers
-                  ? num
-                  : <FontAwesomeIcon icon={icons[num]} className="text-40" />} */}
+                {!hidden && <>{symbol}</>}
               </button>
             )
           })}

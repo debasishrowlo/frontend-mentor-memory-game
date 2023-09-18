@@ -8,22 +8,33 @@ export const enum gameTypes {
   icons = "icons"
 }
 
+export type Config = {
+  gridSize: number,
+  gameType: gameTypes,
+}
+
 const App = () => {
   const [isPlaying, setIsPlaying] = useState(false)
-  const [gridSize, setGridSize] = useState(4)
+  const [config, setConfig] = useState<Config>({
+    gridSize: 4,
+    gameType: gameTypes.numbers,
+  })
 
   const startGame= () => setIsPlaying(true)
 
   return !isPlaying 
-    ? <Menu
-        gridSize={gridSize}
-        setGridSize={setGridSize}
+    ? (
+      <Menu
         startGame={startGame}
+        config={config}
+        setConfig={setConfig}
       /> 
-    : <Game 
-        gridSize={gridSize}
-        gameType={gameTypes.icons}
+    ) : (
+      <Game 
+        gridSize={config.gridSize}
+        gameType={config.gameType}
       />
+    )
 }
 
 export default App
