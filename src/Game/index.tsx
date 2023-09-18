@@ -176,6 +176,11 @@ const Game = ({
   }
 
   const restart = () => {
+    gridRef.current = generateNumberGrid(cellCount)
+    if (gameType === gameTypes.icons) {
+      iconMapRef.current = generateIconMap(cellCount)
+    }
+
     setStartTime(Date.now())
     setSolved([])
   }
@@ -200,9 +205,10 @@ const Game = ({
                 onClick={() => handleCellClick(index)}
               >
                 {hidden && (
-                  <div className="absolute inset-0 bg-black"></div>
+                  <div className="absolute inset-0 bg-black/20"></div>
                 )}
-                {!hidden && <>{symbol}</>}
+                {/* {!hidden && <>{symbol}</>} */}
+                {true && <>{symbol}</>}
               </button>
             )
           })}
