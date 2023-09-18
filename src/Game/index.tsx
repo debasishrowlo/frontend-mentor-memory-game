@@ -1,10 +1,36 @@
 import { useRef, useState } from "react"
 import classnames from "classnames"
 import { Dialog } from "@headlessui/react"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { 
+  faAnchor, 
+  faBug,
+  faCar,
+  faFlask, 
+  faFutbol, 
+  faHandSpock,
+  faMoon,
+  faSnowflake,
+  faSun,
+  faTurkishLiraSign,
+  faWandMagicSparkles
+} from '@fortawesome/free-solid-svg-icons'
 
-const generateGrid = (cells:number) => {
+import { gameTypes } from '@/App'
+import { IconProp } from "@fortawesome/fontawesome-svg-core"
+
+const generateIconGrid = (cellCount:number) => {
   let grid = Array
-    .from(Array(Math.round(cells / 2)).keys())
+    .from(Array(Math.round(cellCount / 2)).keys())
+    .map(num => num + 1)
+  grid = [...grid, ...grid]
+
+  return grid
+}
+
+const generateNumberGrid = (cellCount:number) => {
+  let grid = Array
+    .from(Array(Math.round(cellCount / 2)).keys())
     .map(num => num + 1)
   grid = [...grid, ...grid]
 
@@ -20,11 +46,30 @@ const generateGrid = (cells:number) => {
 
 const Game = ({
   gridSize,
+  gameType,
 } : {
   gridSize: number
+  gameType: gameTypes,
 }) => {
-  const gridRef = useRef(generateGrid(gridSize * gridSize))
+  const cellCount = gridSize * gridSize
+  const gridRef = useRef(
+    generateNumberGrid(cellCount)
+    // gameType === gameTypes.numbers
+    //   ? generateNumberGrid(cellCount)
+    //   : generateIconGrid(cellCount)
+  )
   const grid = gridRef.current
+  // const iconRef = useRef<{[key:number]: IconProp}>({
+  //   1: faEnvelope,
+  //   2: faEnvelope,
+  //   3: faEnvelope,
+  //   4: faEnvelope,
+  //   5: faEnvelope,
+  //   6: faEnvelope,
+  //   7: faEnvelope,
+  //   8: faEnvelope,
+  // })
+  // const icons = iconRef.current
   const cellsPerRow = gridSize
   const [cell1, setCell1] = useState<number|null>(null)
   const [cell2, setCell2] = useState<number|null>(null)
@@ -111,7 +156,8 @@ const Game = ({
   return (
     <>
       <div className="w-full h-screen flex items-center justify-center">
-        <div className="flex flex-wrap" style={{ width: "500px" }}>
+        <div className="flex flex-wrap select-none" style={{ width: "500px" }}>
+
           {grid.map((num, index) => {
             const hidden = isHidden(index)
 
@@ -119,12 +165,16 @@ const Game = ({
               <button 
                 key={index} 
                 style={{ width: `${100/cellsPerRow}%` }}
-                className={classnames("aspect-square border border-black text-24 font-bold text-black rounded-full", {
-                  "bg-black": hidden,
-                })}
+                className="relative aspect-square border border-black text-24 font-bold text-black rounded-full overflow-hidden"
                 onClick={() => handleCellClick(index)}
               >
-                {num}
+                {hidden && (
+                  <div className="absolute inset-0 bg-black"></div>
+                )}
+                {!hidden && (num)}
+                {/* {gameType === gameTypes.numbers
+                  ? num
+                  : <FontAwesomeIcon icon={icons[num]} className="text-40" />} */}
               </button>
             )
           })}
