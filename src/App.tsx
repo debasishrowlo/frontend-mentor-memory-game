@@ -9,7 +9,7 @@ export const enum gameTypes {
 }
 
 const App = () => {
-  const [isPlaying, setIsPlaying] = useState(true)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [gridSize, setGridSize] = useState(4)
 
   const startGame= () => setIsPlaying(true)
