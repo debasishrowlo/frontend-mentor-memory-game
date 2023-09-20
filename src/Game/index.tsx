@@ -207,8 +207,7 @@ const Game = ({
                 {hidden && (
                   <div className="absolute inset-0 bg-black"></div>
                 )}
-                {/* {!hidden && <>{symbol}</>} */}
-                {true && <>{symbol}</>}
+                {!hidden && <>{symbol}</>}
               </button>
             )
           })}
