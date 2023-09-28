@@ -1,31 +1,29 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { gameTypes } from '@/App'
-import { IconMap } from "./SinglePlayerGame"
+import { GameSettings, gameTypes } from '@/App'
+import { IconMap } from "./index"
 
 const Grid = ({
   grid,
-  gridSize,
-  gameType,
+  gameSettings,
   iconMap,
   isHidden,
   handleCellClick,
 } : {
   grid: number[],
-  gridSize: number,
-  gameType: gameTypes,
+  gameSettings: GameSettings,
   iconMap: IconMap,
   isHidden: Function,
   handleCellClick: Function,
 }) => {
-  const cellsPerRow = gridSize
+  const cellsPerRow = gameSettings.gridSize
 
   return (
     <div className="flex flex-wrap select-none" style={{ width: "500px" }}>
       {grid.map((num, index) => {
         const hidden = isHidden(index)
 
-        const symbol = (gameType === gameTypes.numbers)
+        const symbol = (gameSettings.gameType === gameTypes.numbers)
           ? num
           : <FontAwesomeIcon icon={iconMap[num]} className="text-40" />
 

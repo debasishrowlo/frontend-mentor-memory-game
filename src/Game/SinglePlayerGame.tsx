@@ -1,151 +1,49 @@
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { Dialog } from "@headlessui/react"
-import { IconProp } from "@fortawesome/fontawesome-svg-core"
-import {
-  faAnchor, 
-  faBomb,
-  faBug,
-  faCar,
-  faCloud,
-  faCompass,
-  faFire,
-  faFlask, 
-  faFutbol,
-  faGhost,
-  faHandSpock,
-  faMoon,
-  faRocket,
-  faSnowflake,
-  faSun,
-  faTurkishLiraSign,
-  faUmbrella,
-  faWandMagicSparkles,
-} from '@fortawesome/free-solid-svg-icons'
 
 import Grid from "./Grid"
 
-import { gameTypes } from '@/App'
-
-export type IconMap = {
-  [key:number]: IconProp,
-}
-
-export const shuffle = (arr:any[]) => {
-  const result = [...arr]
-
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const s = result[i] 
-    result[i] = result[j]
-    result[j] = s
-  }
-
-  return result
-}
-
-const generateNumberGrid = (cellCount:number) => {
-  const grid = Array
-    .from(Array(Math.round(cellCount / 2)).keys())
-    .map(num => num + 1)
-
-  return shuffle([...grid, ...grid])
-}
-
-const generateIconMap = (cellCount:number) => {
-  const iconMap:IconMap = {}
-
-  const icons = shuffle([
-    faAnchor, 
-    faBomb,
-    faBug,
-    faCar,
-    faCloud,
-    faCompass,
-    faFire,
-    faFlask, 
-    faFutbol, 
-    faGhost,
-    faHandSpock,
-    faMoon,
-    faRocket,
-    faSnowflake,
-    faSun,
-    faTurkishLiraSign,
-    faUmbrella,
-    faWandMagicSparkles,
-  ])
-
-  for (let i = 0; i < (cellCount / 2); i++) {
-    iconMap[i + 1] = icons[i]
-  }
-
-  return iconMap
-}
+import { GameSettings } from '@/App'
+import { actionTypes, IconMap } from './index'
 
 const SinglePlayerGame = ({
-  gridSize,
-  gameType,
+  gameSettings,
+  grid,
+  iconMap,
+  isHidden,
+  handleCellClick: handleCellClickProp,
+  isGameOver,
+  restart: restartProp,
 } : {
-  gridSize: number,
-  gameType: gameTypes,
+  gameSettings: GameSettings,
+  grid: number[],
+  iconMap: IconMap,
+  isGameOver: boolean,
+  isHidden: Function,
+  handleCellClick: Function,
+  restart: Function,
 }) => {
-  const cellCount = gridSize * gridSize
-
-  const gridRef = useRef(generateNumberGrid(cellCount))
-  const grid = gridRef.current
-
-  const iconMapRef = useRef<IconMap>(generateIconMap(cellCount))
-  const iconMap = iconMapRef.current
-
-  const [cell1, setCell1] = useState<number|null>(null)
-  const [cell2, setCell2] = useState<number|null>(null)
-  const [solved, setSolved] = useState<number[]>([])
   const [moveCount, setMoveCount] = useState(0)
   const [startTime, setStartTime] = useState(null)
 
-  const cellsPerRow = gridSize
+  const reducer = (action:actionTypes) => {
+    if (action === actionTypes.cellClick) {
+      if (startTime === null) {
+        setStartTime(Date.now())
+      }
 
-  const isGameOver = grid.length === solved.length
-
-  const isHidden = (index:number) => {
-    if (index === cell1 || index === cell2) {
-      return false
+      setMoveCount(moveCount + 1)
     }
+  }
 
-    return !solved.includes(index)
+  const restart = () => {
+    setStartTime(Date.now())
+    setMoveCount(0)
+    restartProp()
   }
 
   const handleCellClick = (index:number) => {
-    if (!isHidden(index)) { return }
-
-    if (startTime === null) {
-      setStartTime(Date.now())
-    }
-
-    setMoveCount(moveCount + 1)
-
-    if (cell1 === null) {
-      setCell1(index)
-      return
-    }
-
-    const cell2Value = index
-    setCell2(cell2Value)
-
-    if (grid[cell1] === grid[cell2Value]) {
-      setSolved([
-        ...solved,
-        cell1,
-        cell2Value,
-      ])
-      setCell1(null)
-      setCell2(null)
-    } else {
-      setTimeout(() => {
-        setCell1(null)
-        setCell2(null)
-      }, 500)
-    }
+    handleCellClickProp(index, reducer)
   }
 
   const getTimeElapsed = () => {
@@ -176,50 +74,16 @@ const SinglePlayerGame = ({
     return result
   }
 
-  const restart = () => {
-    gridRef.current = generateNumberGrid(cellCount)
-    if (gameType === gameTypes.icons) {
-      iconMapRef.current = generateIconMap(cellCount)
-    }
-
-    setStartTime(Date.now())
-    setSolved([])
-  }
-
   return (
     <>
       <div className="w-full h-screen flex items-center justify-center">
         <Grid
           grid={grid}
-          gameType={gameType}
-          gridSize={gridSize}
+          gameSettings={gameSettings}
           iconMap={iconMap}
           isHidden={isHidden}
           handleCellClick={handleCellClick}
         />
-        {/* <div className="flex flex-wrap select-none" style={{ width: "500px" }}>
-          {grid.map((num, index) => {
-            const hidden = isHidden(index)
-
-            const symbol = (gameType === gameTypes.numbers)
-              ? num
-              : <FontAwesomeIcon icon={iconMap[num]} className="text-40" />
-
-            return (
-              <button 
-                key={index} 
-                style={{ width: `${100/cellsPerRow}%` }}
-                className="relative aspect-square border border-black text-24 font-bold text-black rounded-full overflow-hidden"
-                onClick={() => handleCellClick(index)}
-              >
-                {hidden && (
-                  <div className="absolute inset-0 bg-black"></div>
-                )}
-                {!hidden && <>{symbol}</>}
-              </button>
-            )
-          })}
-        </div> */}
       </div>
       <Dialog open={isGameOver} onClose={() => {}}>
         <div className="fixed inset-0 flex items-center justify-center">
@@ -229,7 +93,7 @@ const SinglePlayerGame = ({
               <p className="text-center">You did it!</p>
               <p className="text-center">Moves Taken: {moveCount}</p>
               <p className="text-center">Time elapsed: {getTimeElapsed()}</p>
-              <button type="button" onClick={restart}>Restart</button>
+              <button type="button" onClick={() => restart()}>Restart</button>
             </div>
           </Dialog.Panel>
         </div>
