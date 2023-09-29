@@ -35,7 +35,7 @@ const Grid = ({
             onClick={() => handleCellClick(index)}
           >
             {hidden && (
-              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="absolute inset-0 bg-black"></div>
             )}
             {!hidden && <>{symbol}</>}
           </button>
