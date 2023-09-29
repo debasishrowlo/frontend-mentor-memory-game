@@ -76,7 +76,7 @@ const Menu = ({
             </button>
           </div>
         </div>
-        <div className="mt-4">
+        {/* <div className="mt-4">
           <p>Number of Players</p>
           <div className="mt-2 flex">
             {[...Array(4).keys()].map(index => {
@@ -97,11 +97,11 @@ const Menu = ({
               )
             })}
           </div>
-        </div>
+        </div> */}
         <div className="flex justify-center">
           <button 
             type="button"
-            className="mt-6"
+            className="mt-6 px-4 py-2 border border-black"
             onClick={() => startGame()}
           >
             Start Game
