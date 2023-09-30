@@ -103,6 +103,9 @@ const App = () => {
   const [moveCount, setMoveCount] = useState(0)
   const [startTime, setStartTime] = useState(null)
 
+  const [activePlayerIndex, setActivePlayerIndex] = useState(0)
+  const [scores, setScores] = useState([])
+
   const cellCount = gridSize * gridSize
 
   const iconMapRef = useRef<IconMap>()
@@ -122,8 +125,16 @@ const App = () => {
     }
   }
 
+  const initScores = () => {
+    setScores(Array(numPlayers).fill(0))
+  }
+
   const startGame = () => {
     generateGrid()
+
+    if (!isSinglePlayerGame) {
+      initScores()
+    }
 
     setIsPlaying(true)
   }
@@ -144,6 +155,8 @@ const App = () => {
     if (isSinglePlayerGame) {
       setStartTime(null)
       setMoveCount(0)
+    } else {
+      initScores()
     }
   }
 
@@ -182,11 +195,24 @@ const App = () => {
       ])
       setCell1(null)
       setCell2(null)
+
+      if (!isSinglePlayerGame) {
+        setScores([
+          ...scores.slice(0, activePlayerIndex),
+          scores[activePlayerIndex] + 1,
+          ...scores.slice(activePlayerIndex + 1),
+        ])
+      }
     } else {
       setTimeout(() => {
         setCell1(null)
         setCell2(null)
       }, 500)
+
+      if (!isSinglePlayerGame) {
+        const newIndex = (activePlayerIndex === numPlayers - 1) ? 0 : activePlayerIndex + 1
+        setActivePlayerIndex(newIndex)
+      }
     }
   }
 
@@ -202,17 +228,17 @@ const App = () => {
     let result = ""
 
     const endTime = Date.now()
-    const timeInMs = endTime - startTime
+    let diff = endTime - startTime
 
-    let diff = timeInMs / 1000
-    let seconds = Math.round(diff % 60)
+    diff /= 1000
+    const seconds = Math.round(diff % 60)
 
     diff = Math.round(diff / 60)
     const minutes = Math.round(diff % 60)
 
     diff = Math.round(diff / 60)
     const hours = Math.round(diff % 24)
-
+    
     if (hours > 0) {
       result = `${hours}:${padZero(minutes)}:${padZero(seconds)}`
     } else {
@@ -220,6 +246,15 @@ const App = () => {
     }
 
     return result
+  }
+
+  let gameResults:Array<{
+    index: number,
+    score: number,
+  }> = []
+  if (isGameOver && !isSinglePlayerGame) {
+    gameResults = scores.map((score, index) => ({ index, score, }))
+    gameResults.sort((p1, p2) => p2.score - p1.score)
   }
 
   if (!isPlaying) {
@@ -306,44 +341,89 @@ const App = () => {
 
   return (
     <>
-      <div className="w-full h-screen flex items-center justify-center">
-        <div className="flex flex-wrap select-none" style={{ width: "500px" }}>
-          {grid.map((num, index) => {
-            const hidden = isHidden(index)
+      <div className="w-full h-screen flex flex-col">
+        <div className="flex grow items-center justify-center">
+          <div className="flex flex-wrap select-none" style={{ width: "500px" }}>
+            {grid.map((num, index) => {
+              const hidden = isHidden(index)
 
-            const symbol = (gameType === gameTypes.numbers)
-              ? num
-              : <FontAwesomeIcon icon={iconMap[num]} className="text-40" />
+              const symbol = (gameType === gameTypes.numbers)
+                ? num
+                : <FontAwesomeIcon icon={iconMap[num]} className="text-40" />
 
-            return (
-              <button
-                key={index}
-                style={{ width: `${100/gridSize}%` }}
-                className="relative aspect-square border border-black text-24 font-bold text-black rounded-full overflow-hidden"
-                onClick={() => handleCellClick(index)}
-              >
-                {hidden && (
-                  <div className="absolute inset-0 bg-black"></div>
-                )}
-                {!hidden && <>{symbol}</>}
-              </button>
-            )
-          })}
+              return (
+                <button
+                  key={index}
+                  style={{ width: `${100/gridSize}%` }}
+                  className="relative aspect-square border border-black text-24 font-bold text-black rounded-full overflow-hidden"
+                  onClick={() => handleCellClick(index)}
+                >
+                  {hidden && (
+                    <div className="absolute inset-0 bg-black/20"></div>
+                  )}
+                  {/* {!hidden && <>{symbol}</>} */}
+                  {true && <>{symbol}</>}
+                </button>
+              )
+            })}
+          </div>
         </div>
+        {!isSinglePlayerGame && (
+          <div className="w-full max-w-screen-md mx-auto pb-6 flex justify-center">
+            {scores.map((score, index) => {
+              const active = index === activePlayerIndex
+
+              return (
+                <div 
+                  key={index}
+                  className={classnames("w-1/4 px-4 py-2 flex justify-between border border-black", {
+                    "bg-black text-white": active,
+                  })}
+                >
+                  <p>Player {index + 1}</p>
+                  <p className="font-bold">{score}</p>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
-      <Dialog open={isGameOver} onClose={() => {}}>
-        <div className="fixed inset-0 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black opacity-25"></div>
-          <Dialog.Panel className="p-4 relative z-10 bg-white">
-            <div>
-              <p className="text-center">You did it!</p>
-              <p className="text-center">Moves Taken: {moveCount}</p>
-              <p className="text-center">Time elapsed: {getTimeElapsed()}</p>
-              <button type="button" onClick={() => restart()}>Restart</button>
-            </div>
-          </Dialog.Panel>
-        </div>
-      </Dialog>
+      {isGameOver && (
+        <Dialog open={isGameOver} onClose={() => {}}>
+          <div className="fixed inset-0 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black opacity-25"></div>
+            <Dialog.Panel className="p-4 relative z-10 bg-white">
+              <>
+                {isSinglePlayerGame ? (
+                  <>
+                    <p className="text-center">You did it!</p>
+                    <p className="text-center">Moves Taken: {moveCount}</p>
+                    <p className="text-center">Time elapsed: {getTimeElapsed()}</p>
+                    <button type="button" onClick={() => restart()}>Restart</button>
+                  </>
+                ) : (
+                  <>
+                    <p>Player {gameResults[0].index + 1} Wins!</p>
+                    <p className="text-center">Game over! Here are the results...</p>
+                    {gameResults.map((player, index) => (
+                      <div className="flex justify-between" key={index}>
+                        <p>
+                          Player {player.index + 1}
+                          {(index === 0) && (
+                            <span className="ml-1">(Winner!)</span>
+                          )}
+                        </p>
+                        <p>{player.score} Pairs</p>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => restart()}>Restart</button>
+                  </>
+                )}
+              </>
+            </Dialog.Panel>
+          </div>
+        </Dialog>
+      )}
     </>
   )
 }
