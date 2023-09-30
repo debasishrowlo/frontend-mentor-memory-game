@@ -59,7 +59,7 @@ const generateIconMap = (cellCount:number) => {
     faCompass,
     faFire,
     faFlask, 
-    faFutbol, 
+    faFutbol,
     faGhost,
     faHandSpock,
     faMoon,
@@ -86,11 +86,15 @@ const generateNumberGrid = (cellCount:number) => {
   return shuffle([...grid, ...grid])
 }
 
+const initialGridSize = 4
+const initialGameType = gameTypes.numbers
+const initialNumPlayers = 1
+
 const App = () => {
   const [isPlaying, setIsPlaying] = useState(false)
-  const [gridSize, setGridSize] = useState(4)
-  const [gameType, setGameType] = useState(gameTypes.numbers)
-  const [numPlayers, setNumPlayers] = useState(1)
+  const [gridSize, setGridSize] = useState(initialGridSize)
+  const [gameType, setGameType] = useState(initialGameType)
+  const [numPlayers, setNumPlayers] = useState(initialNumPlayers)
 
   const [cell1, setCell1] = useState<number|null>(null)
   const [cell2, setCell2] = useState<number|null>(null)
@@ -110,10 +114,37 @@ const App = () => {
   const isGameOver = grid.length === solved.length
   const isSinglePlayerGame = numPlayers === 1
 
-  const startGame = () => {
-    setIsPlaying(true)
+  const generateGrid = () => {
     gridRef.current = generateNumberGrid(cellCount)
-    iconMapRef.current = generateIconMap(cellCount)
+
+    if (gameType === gameTypes.icons) {
+      iconMapRef.current = generateIconMap(cellCount)
+    }
+  }
+
+  const startGame = () => {
+    generateGrid()
+
+    setIsPlaying(true)
+  }
+
+  const newGame = () => {
+    setIsPlaying(false)
+
+    setGridSize(initialGridSize)
+    setGameType(initialGameType)
+    setNumPlayers(initialNumPlayers)
+  }
+
+  const restart = () => {
+    generateGrid()
+
+    setSolved([])
+
+    if (isSinglePlayerGame) {
+      setStartTime(null)
+      setMoveCount(0)
+    }
   }
 
   const isHidden = (index:number) => {
@@ -159,6 +190,14 @@ const App = () => {
     }
   }
 
+  const padZero = (value:number):string => {
+    if (value < 10) {
+      return `0${value}`
+    }
+
+    return value.toString()
+  }
+
   const getTimeElapsed = () => {
     let result = ""
 
@@ -167,33 +206,20 @@ const App = () => {
 
     let diff = timeInMs / 1000
     let seconds = Math.round(diff % 60)
-    let secondsText = seconds.toString()
-    if (seconds < 10) { secondsText = `0${seconds}` }
 
     diff = Math.round(diff / 60)
     const minutes = Math.round(diff % 60)
 
     diff = Math.round(diff / 60)
-    result = `${minutes}:${secondsText}`
-
     const hours = Math.round(diff % 24)
-    if (hours > 0) {
-      let minutesText = minutes.toString()
-      if (minutes < 10) { minutesText = `0${minutes}` }
 
-      result = `${hours}:${minutesText}:${secondsText}`
+    if (hours > 0) {
+      result = `${hours}:${padZero(minutes)}:${padZero(seconds)}`
+    } else {
+      result = `${minutes}:${padZero(seconds)}`
     }
 
     return result
-  }
-
-  const restart = () => {
-    gridRef.current = generateNumberGrid(cellCount)
-    if (gameType === gameTypes.icons) {
-      iconMapRef.current = generateIconMap(cellCount)
-    }
-
-    setSolved([])
   }
 
   if (!isPlaying) {
@@ -203,51 +229,44 @@ const App = () => {
           <div>
             <p>Grid Size</p>
             <div className="mt-2">
-              <button 
-                type="button" 
-                className={classnames("w-1/2 border border-black", {
-                  "bg-white text-black": gridSize !== 4,
-                  "bg-black text-white": gridSize === 4,
-                })}
-                onClick={() => setGridSize(4)}
-              >
-                4x4
-              </button>
-              <button
-                type="button" 
-                className={classnames("w-1/2 border border-black", {
-                  "bg-white text-black": gridSize !== 6,
-                  "bg-black text-white": gridSize === 6,
-                })}
-                onClick={() => setGridSize(6)}
-              >
-                6x6
-              </button>
+              {[4, 6].map(size => (
+                <button 
+                  type="button" 
+                  className={classnames("w-1/2 border border-black", {
+                    "bg-white text-black": gridSize !== size,
+                    "bg-black text-white": gridSize === size,
+                  })}
+                  onClick={() => setGridSize(size)}
+                >
+                  {size}x{size}
+                </button>
+              ))}
             </div>
           </div>
           <div className="mt-4">
             <p>Select Theme</p>
             <div className="mt-2">
-              <button 
-                type="button" 
-                className={classnames("w-1/2 border border-black", {
-                  "bg-white text-black": gameType !== gameTypes.numbers,
-                  "bg-black text-white": gameType === gameTypes.numbers,
-                })}
-                onClick={() => setGameType(gameTypes.numbers)}
-              >
-                Numbers
-              </button>
-              <button
-                type="button" 
-                className={classnames("w-1/2 border border-black", {
-                  "bg-white text-black": gameType !== gameTypes.icons,
-                  "bg-black text-white": gameType === gameTypes.icons,
-                })}
-                onClick={() => setGameType(gameTypes.icons)}
-              >
-                Icons
-              </button>
+              {[
+                {
+                  type: gameTypes.numbers,
+                  name: "Numbers",
+                },
+                {
+                  type: gameTypes.icons,
+                  name: "Icons",
+                }
+              ].map(data => (
+                <button 
+                  type="button" 
+                  className={classnames("w-1/2 border border-black", {
+                    "bg-white text-black": gameType !== data.type,
+                    "bg-black text-white": gameType === data.type,
+                  })}
+                  onClick={() => setGameType(data.type)}
+                >
+                  {data.name}
+                </button>
+              ))}
             </div>
           </div>
           <div className="mt-4">
