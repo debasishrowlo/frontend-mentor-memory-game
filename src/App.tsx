@@ -23,6 +23,8 @@ import {
   faWandMagicSparkles,
 } from '@fortawesome/free-solid-svg-icons'
 
+import Logo from "./Logo"
+
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
 
 export const enum gameTypes {
@@ -282,76 +284,82 @@ const App = () => {
 
   if (!isPlaying) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="w-1/2">
-          <div>
-            <p>Grid Size</p>
-            <div className="mt-2">
-              {[4, 6].map(size => (
-                <button 
-                  type="button" 
-                  className={classnames("w-1/2 border border-black", {
-                    "bg-white text-black": gridSize !== size,
-                    "bg-black text-white": gridSize === size,
-                  })}
-                  onClick={() => setGridSize(size)}
-                >
-                  {size}x{size}
-                </button>
-              ))}
-            </div>
+      <div className="h-screen flex items-center justify-center bg-gray-700">
+        <div className="px-6 w-full max-w-screen-sm">
+          <div className="flex justify-center">
+            <Logo className="md:w-auto fill-gray-100" />
           </div>
-          <div className="mt-4">
-            <p>Select Theme</p>
-            <div className="mt-2">
-              {[
-                {
-                  type: gameTypes.numbers,
-                  name: "Numbers",
-                },
-                {
-                  type: gameTypes.icons,
-                  name: "Icons",
-                }
-              ].map(data => (
-                <button 
-                  type="button" 
-                  className={classnames("w-1/2 border border-black", {
-                    "bg-white text-black": gameType !== data.type,
-                    "bg-black text-white": gameType === data.type,
-                  })}
-                  onClick={() => setGameType(data.type)}
-                >
-                  {data.name}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="mt-4">
-            <p>Number of Players</p>
-            <div className="mt-2 flex">
-              {[...Array(4).keys()].map(index => {
-                const num = index + 1
-
-                return (
+          <div className="mt-12 md:mt-20 p-6 md:p-14 bg-gray-100 rounded-[20px]">
+            <div>
+              <p className="text-16 md:text-20 font-bold text-gray-500">Select Theme</p>
+              <div className="mt-2 flex space-x-3 md:space-x-7">
+                {[
+                  {
+                    type: gameTypes.numbers,
+                    name: "Numbers",
+                  },
+                  {
+                    type: gameTypes.icons,
+                    name: "Icons",
+                  }
+                ].map((data, index) => (
                   <button 
                     type="button" 
-                    className={classnames("w-1/4 border", {
-                      "border-transparent bg-black text-white": numPlayers === num,
-                      "border-black bg-white text-black": numPlayers !== num,
+                    className={classnames("w-1/2 py-2.5 text-16 md:text-26 font-bold text-gray-100 rounded-full transition-colors duration-200", {
+                      "bg-gray-300 hover:bg-gray-400": gameType !== data.type,
+                      "bg-gray-600": gameType === data.type,
                     })}
-                    onClick={() => setNumPlayers(num)}
+                    onClick={() => setGameType(data.type)}
+                    key={index}
                   >
-                    {num}
+                    {data.name}
                   </button>
-                )
-              })}
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="flex justify-center">
+            <div className="mt-6">
+              <p className="text-16 md:text-20 font-bold text-gray-500">Number of Players</p>
+              <div className="mt-2 flex space-x-3 md:space-x-5">
+                {[...Array(4).keys()].map(index => {
+                  const num = index + 1
+
+                  return (
+                    <button 
+                      type="button" 
+                      className={classnames("w-1/2 py-2.5 text-16 md:text-26 font-bold text-gray-100 rounded-full transition-colors duration-200", {
+                        "bg-gray-300 hover:bg-gray-400": numPlayers !== num,
+                        "bg-gray-600": numPlayers === num,
+                      })}
+                      onClick={() => setNumPlayers(num)}
+                      key={index}
+                    >
+                      {num}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+            <div className="mt-6">
+              <p className="text-16 md:text-20 font-bold text-gray-500">Grid Size</p>
+              <div className="mt-2 flex space-x-3 md:space-x-7">
+                {[4, 6].map((size, index) => (
+                  <button 
+                    type="button" 
+                    className={classnames("w-1/2 py-2.5 text-16 md:text-26 font-bold text-gray-100 rounded-full transition-colors duration-200", {
+                      "bg-gray-300 hover:bg-gray-400": gridSize !== size,
+                      "bg-gray-600": gridSize === size,
+                    })}
+                    onClick={() => setGridSize(size)}
+                    key={index}
+                  >
+                    {size}x{size}
+                  </button>
+                ))}
+              </div>
+            </div>
             <button 
               type="button"
-              className="mt-6 px-4 py-2 border border-black"
+              className="w-full mt-8 py-4 bg-orange-200 hover:bg-orange-100 text-18 md:text-32 font-bold text-gray-100 rounded-full transition-colors duration-200"
               onClick={() => startGame()}
             >
               Start Game
