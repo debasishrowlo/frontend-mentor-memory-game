@@ -30,6 +30,11 @@ export const enum gameTypes {
   icons = "icons"
 }
 
+const enum resultTypes {
+  win = "win",
+  tie = "tie",
+}
+
 export type IconMap = {
   [key:number]: IconProp,
 }
@@ -114,7 +119,7 @@ const App = () => {
   const gridRef = useRef([])
   const grid = gridRef.current
 
-  const isGameOver = grid.length === solved.length
+  const isGameOver = grid.length > 1 && (grid.length === solved.length)
   const isSinglePlayerGame = numPlayers === 1
 
   const generateGrid = () => {
@@ -248,13 +253,31 @@ const App = () => {
     return result
   }
 
-  let gameResults:Array<{
-    index: number,
-    score: number,
-  }> = []
+  let gameResults:{
+    resultType: resultTypes,
+    maxScore: number,
+    players: Array<{
+      index: number,
+      score: number,
+    }>
+  } = {
+    resultType: resultTypes.win,
+    maxScore: 0,
+    players: [],
+  }
   if (isGameOver && !isSinglePlayerGame) {
-    gameResults = scores.map((score, index) => ({ index, score, }))
-    gameResults.sort((p1, p2) => p2.score - p1.score)
+    gameResults.players = scores.map((score, index) => ({ index, score, }))
+    gameResults.players.sort((p1, p2) => p2.score - p1.score)
+
+    const maxScore = gameResults.players[0].score
+    gameResults.maxScore = maxScore
+
+    const playersWithMaxScore = gameResults.players.filter(player => player.score === maxScore)
+    if (playersWithMaxScore.length > 1) {
+      gameResults.resultType = resultTypes.tie
+    } else {
+      gameResults.resultType = resultTypes.win
+    }
   }
 
   if (!isPlaying) {
@@ -402,13 +425,17 @@ const App = () => {
                   </>
                 ) : (
                   <>
-                    <p>Player {gameResults[0].index + 1} Wins!</p>
+                    {(gameResults.resultType === resultTypes.win) ? (
+                      <p>Player {gameResults.players[0].index + 1} Wins!</p>
+                    ) : (
+                      <p>It's a tie!</p>
+                    )}
                     <p className="text-center">Game over! Here are the results...</p>
-                    {gameResults.map((player, index) => (
+                    {gameResults.players.map((player, index) => (
                       <div className="flex justify-between" key={index}>
                         <p>
                           Player {player.index + 1}
-                          {(index === 0) && (
+                          {(player.score === gameResults.maxScore) && (
                             <span className="ml-1">(Winner!)</span>
                           )}
                         </p>
