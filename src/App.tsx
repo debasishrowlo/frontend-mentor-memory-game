@@ -90,7 +90,7 @@ const generateNumberGrid = (cellCount:number) => {
     .from(Array(Math.round(cellCount / 2)).keys())
     .reduce((acc, cur) => [...acc, cur, cur], [])
 
-  return shuffle([...grid, ...grid])
+  return shuffle(grid)
 }
 
 const initialGridSize = 4
