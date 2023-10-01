@@ -194,6 +194,12 @@ const App = () => {
       setCell1(index)
       return
     }
+      
+    if (cell1 !== null && cell2 !== null) {
+      setCell1(index)
+      setCell2(null)
+      return
+    }
 
     const cell2Value = index
     setCell2(cell2Value)
@@ -244,7 +250,6 @@ const App = () => {
   const formatTime = (elapsedSeconds:number) => {
     let diff = elapsedSeconds
 
-    diff /= 1000
     const seconds = Math.round(diff % 60)
 
     diff = Math.round(diff / 60)
