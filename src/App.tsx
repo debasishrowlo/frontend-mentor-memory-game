@@ -79,7 +79,7 @@ const generateIconMap = (cellCount:number) => {
   ])
 
   for (let i = 0; i < (cellCount / 2); i++) {
-    iconMap[i + 1] = icons[i]
+    iconMap[i] = icons[i]
   }
 
   return iconMap
@@ -88,7 +88,6 @@ const generateIconMap = (cellCount:number) => {
 const generateNumberGrid = (cellCount:number) => {
   const grid = Array
     .from(Array(Math.round(cellCount / 2)).keys())
-    .map(num => num + 1)
 
   return shuffle([...grid, ...grid])
 }
@@ -284,14 +283,14 @@ const App = () => {
 
   if (!isPlaying) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gray-700">
+      <div className="h-screen flex items-center justify-center bg-gray-800">
         <div className="px-6 w-full max-w-screen-sm">
           <div className="flex justify-center">
-            <Logo className="md:w-auto fill-gray-100" />
+            <Logo className="w-32 md:w-40 fill-gray-100" />
           </div>
           <div className="mt-12 md:mt-20 p-6 md:p-14 bg-gray-100 rounded-[20px]">
             <div>
-              <p className="text-16 md:text-20 font-bold text-gray-500">Select Theme</p>
+              <p className="text-16 md:text-20 font-bold text-gray-600">Select Theme</p>
               <div className="mt-2 flex space-x-3 md:space-x-7">
                 {[
                   {
@@ -306,8 +305,8 @@ const App = () => {
                   <button 
                     type="button" 
                     className={classnames("w-1/2 py-2.5 text-16 md:text-26 font-bold text-gray-100 rounded-full transition-colors duration-200", {
-                      "bg-gray-300 hover:bg-gray-400": gameType !== data.type,
-                      "bg-gray-600": gameType === data.type,
+                      "bg-gray-400 hover:bg-gray-500": gameType !== data.type,
+                      "bg-gray-700": gameType === data.type,
                     })}
                     onClick={() => setGameType(data.type)}
                     key={index}
@@ -318,7 +317,7 @@ const App = () => {
               </div>
             </div>
             <div className="mt-6">
-              <p className="text-16 md:text-20 font-bold text-gray-500">Number of Players</p>
+              <p className="text-16 md:text-20 font-bold text-gray-600">Number of Players</p>
               <div className="mt-2 flex space-x-3 md:space-x-5">
                 {[...Array(4).keys()].map(index => {
                   const num = index + 1
@@ -327,8 +326,8 @@ const App = () => {
                     <button 
                       type="button" 
                       className={classnames("w-1/2 py-2.5 text-16 md:text-26 font-bold text-gray-100 rounded-full transition-colors duration-200", {
-                        "bg-gray-300 hover:bg-gray-400": numPlayers !== num,
-                        "bg-gray-600": numPlayers === num,
+                        "bg-gray-400 hover:bg-gray-500": numPlayers !== num,
+                        "bg-gray-700": numPlayers === num,
                       })}
                       onClick={() => setNumPlayers(num)}
                       key={index}
@@ -340,14 +339,14 @@ const App = () => {
               </div>
             </div>
             <div className="mt-6">
-              <p className="text-16 md:text-20 font-bold text-gray-500">Grid Size</p>
+              <p className="text-16 md:text-20 font-bold text-gray-600">Grid Size</p>
               <div className="mt-2 flex space-x-3 md:space-x-7">
                 {[4, 6].map((size, index) => (
                   <button 
                     type="button" 
                     className={classnames("w-1/2 py-2.5 text-16 md:text-26 font-bold text-gray-100 rounded-full transition-colors duration-200", {
-                      "bg-gray-300 hover:bg-gray-400": gridSize !== size,
-                      "bg-gray-600": gridSize === size,
+                      "bg-gray-400 hover:bg-gray-500": gridSize !== size,
+                      "bg-gray-700": gridSize === size,
                     })}
                     onClick={() => setGridSize(size)}
                     key={index}
@@ -372,9 +371,23 @@ const App = () => {
 
   return (
     <>
-      <div className="w-full h-screen flex flex-col">
+      <div className="w-full h-screen p-6 md:p-10 flex flex-col">
+        <div className="w-full max-w-screen-lg mx-auto flex items-center justify-between">
+          <Logo className="w-24 md:w-32 fill-gray-800" />
+          <div>
+            <button type="button" className="md:hidden px-5 py-3 bg-orange-200 text-16 font-bold text-gray-100 rounded-full">
+              Menu
+            </button>
+            <button type="button" className="hidden md:inline-block px-5 py-3 bg-orange-200 hover:bg-orange-100 text-20 font-bold text-gray-100 rounded-full transition-colors duration-200">
+              Restart
+            </button>
+            <button type="button" className="hidden md:inline-block ml-4 px-5 py-3 bg-gray-300 hover:bg-gray-400 text-20 font-bold text-gray-700 rounded-full transition-colors duration-200">
+              New Game
+            </button>
+          </div>
+        </div>
         <div className="flex grow items-center justify-center">
-          <div className="flex flex-wrap select-none" style={{ width: "500px" }}>
+          <div className="w-full max-w-xl flex flex-wrap select-none">
             {grid.map((num, index) => {
               const hidden = isHidden(index)
 
@@ -382,23 +395,39 @@ const App = () => {
                 ? num
                 : <FontAwesomeIcon icon={iconMap[num]} className="text-40" />
 
+              const buttonBg = (index === cell1 || index === cell2) ? "bg-orange-200" : "bg-gray-400"
+              const buttonFontSize = (gridSize === 4) ? "text-48" : "text-34"
+              const buttonPadding = (gridSize === 4) ? "p-1" : "p-0.5"
+
               return (
-                <button
-                  key={index}
-                  style={{ width: `${100/gridSize}%` }}
-                  className="relative aspect-square border border-black text-24 font-bold text-black rounded-full overflow-hidden"
-                  onClick={() => handleCellClick(index)}
-                >
-                  {hidden && (
-                    <div className="absolute inset-0 bg-black"></div>
-                  )}
-                  {!hidden && <>{symbol}</>}
-                </button>
+                <div className={buttonPadding} style={{ width: `${100/gridSize}%` }} key={index}>
+                  <button
+                    key={index}
+                    className={`w-full relative aspect-square flex items-center justify-center ${buttonFontSize} ${buttonBg} font-bold text-gray-100 rounded-full overflow-hidden transition-colors duration-200`}
+                    onClick={() => handleCellClick(index)}
+                  >
+                    {hidden && (
+                      <div className="absolute inset-0 bg-gray-700"></div>
+                    )}
+                    {!hidden && symbol}
+                  </button>
+                </div>
               )
             })}
           </div>
         </div>
-        {!isSinglePlayerGame && (
+        {isSinglePlayerGame ? (
+          <div className="w-full max-w-xl mx-auto flex space-x-6 md:space-x-8">
+            <div className="w-1/2 px-5 py-3 md:py-6 flex flex-wrap justify-between items-center bg-gray-300 rounded-md md:rounded-xl">
+              <p className="w-full md:w-auto text-center text-16 md:text-18 font-bold text-gray-600">Time</p>
+              <p className="w-full md:w-auto text-center text-24 md:text-32 font-bold text-gray-700">0:01</p>
+            </div>
+            <div className="w-1/2 px-5 py-3 md:py-6 flex flex-wrap justify-between items-center bg-gray-300 rounded-md md:rounded-xl">
+              <p className="w-full md:w-auto text-center text-16 md:text-18 font-bold text-gray-600">Moves</p>
+              <p className="w-full md:w-auto text-center text-24 md:text-32 font-bold text-gray-700">{moveCount}</p>
+            </div>
+          </div>
+        ) : (
           <div className="w-full max-w-screen-md mx-auto pb-6 flex justify-center">
             {scores.map((score, index) => {
               const active = index === activePlayerIndex
