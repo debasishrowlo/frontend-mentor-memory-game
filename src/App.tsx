@@ -384,7 +384,7 @@ const App = () => {
 
   return (
     <>
-      <div className="w-full h-screen p-6 md:p-10 flex flex-col">
+      <div className="w-full h-screen p-6 md:p-10 md:pb-0 flex flex-col">
         <div className="w-full max-w-screen-lg mx-auto flex items-center justify-between">
           <Logo className="w-24 md:w-32 fill-gray-800" />
           <div className="invisible">
@@ -441,19 +441,37 @@ const App = () => {
             </div>
           </div>
         ) : (
-          <div className="w-full max-w-screen-md mx-auto pb-6 flex justify-center">
+          <div className="w-full max-w-screen-lg mx-auto pb-6 flex justify-center space-x-6 lg:space-x-8">
             {scores.map((score, index) => {
               const active = index === activePlayerIndex
 
               return (
                 <div 
                   key={index}
-                  className={classnames("w-1/4 px-4 py-2 flex justify-between border border-black", {
-                    "bg-black text-white": active,
-                  })}
+                  className="w-1/4"
                 >
-                  <p>Player {index + 1}</p>
-                  <p className="font-bold">{score}</p>
+                  <div className={classnames("px-4 py-2 relative flex flex-wrap items-center justify-between rounded md:rounded-xl lg:px-5 lg:py-6", {
+                    "bg-gray-300": !active,
+                    "bg-orange-200": active,
+                  })}>
+                    {active && (
+                      <div className="w-3 h-3 bg-orange-200 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-45 md:w-5 md:h-5"></div>
+                    )}
+                    <p className={classnames("w-full text-center md:text-left text-16 font-bold lg:w-auto lg:text-18", {
+                      "text-gray-600": !active,
+                      "text-gray-100": active,
+                    })}>
+                      <span className="md:hidden">P{index + 1}</span>
+                      <span className="hidden md:block">Player {index + 1}</span>
+                    </p>
+                    <p className={classnames("w-full text-center md:text-left text-24 font-bold lg:w-auto lg:text-32", {
+                      "text-gray-700": !active,
+                      "text-gray-100": active,
+                    })}>{score}</p>
+                  </div>
+                  {active && (
+                    <p className="hidden lg:block mt-6 text-center text-14 font-bold tracking-[5px] text-gray-800">CURRENT TURN</p>
+                  )}
                 </div>
               )
             })}
