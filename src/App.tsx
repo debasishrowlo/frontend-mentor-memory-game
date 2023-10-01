@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import classnames from "classnames"
 import { Dialog } from "@headlessui/react"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -88,6 +88,7 @@ const generateIconMap = (cellCount:number) => {
 const generateNumberGrid = (cellCount:number) => {
   const grid = Array
     .from(Array(Math.round(cellCount / 2)).keys())
+    .reduce((acc, cur) => [...acc, cur, cur], [])
 
   return shuffle([...grid, ...grid])
 }
@@ -107,7 +108,7 @@ const App = () => {
   const [solved, setSolved] = useState<number[]>([])
 
   const [moveCount, setMoveCount] = useState(0)
-  const [startTime, setStartTime] = useState(null)
+  const [secondsElapsed, setSecondsElapsed] = useState(0)
 
   const [activePlayerIndex, setActivePlayerIndex] = useState(0)
   const [scores, setScores] = useState([])
@@ -120,7 +121,9 @@ const App = () => {
   const gridRef = useRef([])
   const grid = gridRef.current
 
-  const isGameOver = grid.length > 1 && (grid.length === solved.length)
+  const timerRef = useRef(null)
+
+  const isGameOver = (solved:number[]) => grid.length > 1 && (grid.length === solved.length)
   const isSinglePlayerGame = numPlayers === 1
 
   const generateGrid = () => {
@@ -159,7 +162,7 @@ const App = () => {
     setSolved([])
 
     if (isSinglePlayerGame) {
-      setStartTime(null)
+      setSecondsElapsed(0)
       setMoveCount(0)
     } else {
       initScores()
@@ -178,8 +181,10 @@ const App = () => {
     if (!isHidden(index)) { return }
 
     if (isSinglePlayerGame) {
-      if (startTime === null) {
-        setStartTime(Date.now())
+      if (timerRef.current === null) {
+        timerRef.current = setInterval(() => {
+          setSecondsElapsed(value => value + 1)
+        }, 1000)
       }
 
       setMoveCount(moveCount + 1)
@@ -194,13 +199,19 @@ const App = () => {
     setCell2(cell2Value)
 
     if (grid[cell1] === grid[cell2Value]) {
-      setSolved([
+      const newSolved = [
         ...solved,
         cell1,
         cell2Value,
-      ])
+      ]
+      setSolved(newSolved)
       setCell1(null)
       setCell2(null)
+
+      if (isSinglePlayerGame && isGameOver(newSolved)) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
+      }
 
       if (!isSinglePlayerGame) {
         setScores([
@@ -213,7 +224,7 @@ const App = () => {
       setTimeout(() => {
         setCell1(null)
         setCell2(null)
-      }, 500)
+      }, 1000)
 
       if (!isSinglePlayerGame) {
         const newIndex = (activePlayerIndex === numPlayers - 1) ? 0 : activePlayerIndex + 1
@@ -230,11 +241,8 @@ const App = () => {
     return value.toString()
   }
 
-  const getTimeElapsed = () => {
-    let result = ""
-
-    const endTime = Date.now()
-    let diff = endTime - startTime
+  const formatTime = (elapsedSeconds:number) => {
+    let diff = elapsedSeconds
 
     diff /= 1000
     const seconds = Math.round(diff % 60)
@@ -242,13 +250,13 @@ const App = () => {
     diff = Math.round(diff / 60)
     const minutes = Math.round(diff % 60)
 
+    let result = `${padZero(minutes)}:${padZero(seconds)}`
+
     diff = Math.round(diff / 60)
     const hours = Math.round(diff % 24)
-    
+
     if (hours > 0) {
-      result = `${hours}:${padZero(minutes)}:${padZero(seconds)}`
-    } else {
-      result = `${minutes}:${padZero(seconds)}`
+      result = `${padZero(hours)}:${result}`
     }
 
     return result
@@ -266,7 +274,7 @@ const App = () => {
     maxScore: 0,
     players: [],
   }
-  if (isGameOver && !isSinglePlayerGame) {
+  if (isGameOver(solved) && !isSinglePlayerGame) {
     gameResults.players = scores.map((score, index) => ({ index, score, }))
     gameResults.players.sort((p1, p2) => p2.score - p1.score)
 
@@ -374,7 +382,7 @@ const App = () => {
       <div className="w-full h-screen p-6 md:p-10 flex flex-col">
         <div className="w-full max-w-screen-lg mx-auto flex items-center justify-between">
           <Logo className="w-24 md:w-32 fill-gray-800" />
-          <div>
+          <div className="invisible">
             <button type="button" className="md:hidden px-5 py-3 bg-orange-200 text-16 font-bold text-gray-100 rounded-full">
               Menu
             </button>
@@ -391,13 +399,13 @@ const App = () => {
             {grid.map((num, index) => {
               const hidden = isHidden(index)
 
-              const symbol = (gameType === gameTypes.numbers)
-                ? num
-                : <FontAwesomeIcon icon={iconMap[num]} className="text-40" />
-
               const buttonBg = (index === cell1 || index === cell2) ? "bg-orange-200" : "bg-gray-400"
               const buttonFontSize = (gridSize === 4) ? "text-48" : "text-34"
-              const buttonPadding = (gridSize === 4) ? "p-1" : "p-0.5"
+              const buttonPadding = (gridSize === 4) ? "p-1" : "p-0.5 md:p-1"
+
+              const symbol = (gameType === gameTypes.numbers)
+                ? num
+                : <FontAwesomeIcon icon={iconMap[num]} className="text-26 md:text-40" />
 
               return (
                 <div className={buttonPadding} style={{ width: `${100/gridSize}%` }} key={index}>
@@ -420,7 +428,7 @@ const App = () => {
           <div className="w-full max-w-xl mx-auto flex space-x-6 md:space-x-8">
             <div className="w-1/2 px-5 py-3 md:py-6 flex flex-wrap justify-between items-center bg-gray-300 rounded-md md:rounded-xl">
               <p className="w-full md:w-auto text-center text-16 md:text-18 font-bold text-gray-600">Time</p>
-              <p className="w-full md:w-auto text-center text-24 md:text-32 font-bold text-gray-700">0:01</p>
+              <p className="w-full md:w-auto text-center text-24 md:text-32 font-bold text-gray-700">{formatTime(secondsElapsed)}</p>
             </div>
             <div className="w-1/2 px-5 py-3 md:py-6 flex flex-wrap justify-between items-center bg-gray-300 rounded-md md:rounded-xl">
               <p className="w-full md:w-auto text-center text-16 md:text-18 font-bold text-gray-600">Moves</p>
@@ -447,8 +455,8 @@ const App = () => {
           </div>
         )}
       </div>
-      {isGameOver && (
-        <Dialog open={isGameOver} onClose={() => {}}>
+      {isGameOver(solved) && (
+        <Dialog open={isGameOver(solved)} onClose={() => {}}>
           <div className="fixed inset-0 flex items-center justify-center">
             <div className="fixed inset-0 bg-black opacity-25"></div>
             <Dialog.Panel className="p-4 relative z-10 bg-white">
@@ -457,7 +465,7 @@ const App = () => {
                   <>
                     <p className="text-center">You did it!</p>
                     <p className="text-center">Moves Taken: {moveCount}</p>
-                    <p className="text-center">Time elapsed: {getTimeElapsed()}</p>
+                    <p className="text-center">Time elapsed: {formatTime(secondsElapsed)}</p>
                     <button type="button" onClick={() => restart()}>Restart</button>
                   </>
                 ) : (
