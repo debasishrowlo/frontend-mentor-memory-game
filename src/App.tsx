@@ -507,7 +507,7 @@ const App = () => {
         )}
       </div>
       {isGameOver(solved) && (
-        <Dialog open={isGameOver(solved)} onClose={() => {}}>
+        <Dialog open={true} onClose={() => {}}>
           <div className="p-6 fixed inset-0 flex items-center justify-center">
             <div className="fixed inset-0 bg-black opacity-50"></div>
             <Dialog.Panel className="w-full max-w-screen-sm px-6 py-8 relative z-10 bg-gray-200 rounded-xl md:px-14 md:py-12">
