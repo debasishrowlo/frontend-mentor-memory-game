@@ -490,92 +490,94 @@ const App = () => {
           </div>
         )}
       </div>
-      <Dialog open={isGameOver(solved)} onClose={() => {}}>
-        <div className="p-6 fixed inset-0 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black opacity-50"></div>
-          <Dialog.Panel className="w-full max-w-screen-sm px-6 py-8 relative z-10 bg-gray-200 rounded-xl md:px-14 md:py-12">
-            <>
-              <p className="text-center text-24 font-bold text-gray-800 md:text-48">
-                {isSinglePlayerGame ? (
-                  "You did it!"
-                ) : (
-                  <>
-                    {(gameResults.resultType === resultTypes.win) ? (
-                      `Player ${gameResults.players[0].index + 1} Wins!`
-                    ) : (
-                      "It's a tie!"
-                    )}
-                  </>
-                )}
-              </p>
-              <p className="text-center text-14 font-bold text-gray-600 md:text-18">
-                {isSinglePlayerGame ? (
-                  "Game over! Here's how you got on..."
-                ) : (
-                  "Game over! Here are the results..."
-                )}
-              </p>
-              <div className="mt-6 space-y-2 md:mt-10 md:space-y-4">
-                {isSinglePlayerGame ? (
-                  <>
-                    <div className="p-4 flex justify-between items-center bg-gray-300 rounded-md md:px-8 md:py-4">
-                      <p className="text-14 font-bold text-gray-600 md:text-18">Time elapsed:</p> 
-                      <p className="text-20 font-bold text-gray-700 md:text-32">{formatTime(secondsElapsed)}</p>
-                    </div>
-                    <div className="p-4 flex justify-between items-center bg-gray-300 rounded-md md:px-8 md:py-4">
-                      <p className="text-14 font-bold text-gray-600 md:text-18">Moves Taken:</p>
-                      <p className="text-20 font-bold text-gray-700 md:text-32">{moveCount}</p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {gameResults.players.map((player, index) => {
-                      const isWinner = player.score === gameResults.maxScore
+      {isGameOver(solved) && (
+        <Dialog open={isGameOver(solved)} onClose={() => {}}>
+          <div className="p-6 fixed inset-0 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black opacity-50"></div>
+            <Dialog.Panel className="w-full max-w-screen-sm px-6 py-8 relative z-10 bg-gray-200 rounded-xl md:px-14 md:py-12">
+              <>
+                <p className="text-center text-24 font-bold text-gray-800 md:text-48">
+                  {isSinglePlayerGame ? (
+                    "You did it!"
+                  ) : (
+                    <>
+                      {(gameResults.resultType === resultTypes.win) ? (
+                        `Player ${gameResults.players[0].index + 1} Wins!`
+                      ) : (
+                        "It's a tie!"
+                      )}
+                    </>
+                  )}
+                </p>
+                <p className="text-center text-14 font-bold text-gray-600 md:text-18">
+                  {isSinglePlayerGame ? (
+                    "Game over! Here's how you got on..."
+                  ) : (
+                    "Game over! Here are the results..."
+                  )}
+                </p>
+                <div className="mt-6 space-y-2 md:mt-10 md:space-y-4">
+                  {isSinglePlayerGame ? (
+                    <>
+                      <div className="p-4 flex justify-between items-center bg-gray-300 rounded-md md:px-8 md:py-4">
+                        <p className="text-14 font-bold text-gray-600 md:text-18">Time elapsed:</p> 
+                        <p className="text-20 font-bold text-gray-700 md:text-32">{formatTime(secondsElapsed)}</p>
+                      </div>
+                      <div className="p-4 flex justify-between items-center bg-gray-300 rounded-md md:px-8 md:py-4">
+                        <p className="text-14 font-bold text-gray-600 md:text-18">Moves Taken:</p>
+                        <p className="text-20 font-bold text-gray-700 md:text-32">{moveCount}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {gameResults.players.map((player, index) => {
+                        const isWinner = player.score === gameResults.maxScore
 
-                      return (
-                        <div className={classnames("p-4 flex justify-between items-center rounded-md md:px-8 md:py-4", {
-                          "bg-gray-800": isWinner,
-                          "bg-gray-300": !isWinner,
-                        })} key={index}>
-                          <p className={classnames("text-14 font-bold md:text-18", {
-                            "text-gray-600": !isWinner,
-                            "text-gray-100": isWinner,
-                          })}>
-                            Player {player.index + 1}
-                            {isWinner && <span className="ml-1">(Winner!)</span>}
-                          </p>
-                          <p className={classnames("text-20 font-bold text-gray-100 md:text-32", {
-                            "text-gray-700": !isWinner,
-                            "text-gray-100": isWinner,
-                          })}>
-                            {player.score} Pair{player.score === 1 ? <span>&nbsp;</span> : "s"}
-                          </p>
-                        </div>
-                      )
-                    })}
-                  </>
-                )}
-              </div>
-              <div className="mt-6 space-y-4 md:mt-10 md:flex md:space-x-4 md:space-y-0">
-                <button
-                  type="button" 
-                  onClick={() => restart()}
-                  className="py-3 w-full bg-orange-200 text-18 font-bold text-gray-100 rounded-full md:w-1/2 md:text-20"
-                >
-                  Restart
-                </button>
-                <button
-                  type="button" 
-                  onClick={() => newGame()}
-                  className="py-3 w-full bg-gray-300 text-18 font-bold text-gray-700 rounded-full md:w-1/2 md:text-20"
-                >
-                  Setup New Game
-                </button>
-              </div>
-            </>
-          </Dialog.Panel>
-        </div>
-      </Dialog>
+                        return (
+                          <div className={classnames("p-4 flex justify-between items-center rounded-md md:px-8 md:py-4", {
+                            "bg-gray-800": isWinner,
+                            "bg-gray-300": !isWinner,
+                          })} key={index}>
+                            <p className={classnames("text-14 font-bold md:text-18", {
+                              "text-gray-600": !isWinner,
+                              "text-gray-100": isWinner,
+                            })}>
+                              Player {player.index + 1}
+                              {isWinner && <span className="ml-1">(Winner!)</span>}
+                            </p>
+                            <p className={classnames("text-20 font-bold text-gray-100 md:text-32", {
+                              "text-gray-700": !isWinner,
+                              "text-gray-100": isWinner,
+                            })}>
+                              {player.score} Pair{player.score === 1 ? <span>&nbsp;</span> : "s"}
+                            </p>
+                          </div>
+                        )
+                      })}
+                    </>
+                  )}
+                </div>
+                <div className="mt-6 space-y-4 md:mt-10 md:flex md:space-x-4 md:space-y-0">
+                  <button
+                    type="button" 
+                    onClick={() => restart()}
+                    className="py-3 w-full bg-orange-200 text-18 font-bold text-gray-100 rounded-full md:w-1/2 md:text-20"
+                  >
+                    Restart
+                  </button>
+                  <button
+                    type="button" 
+                    onClick={() => newGame()}
+                    className="py-3 w-full bg-gray-300 text-18 font-bold text-gray-700 rounded-full md:w-1/2 md:text-20"
+                  >
+                    Setup New Game
+                  </button>
+                </div>
+              </>
+            </Dialog.Panel>
+          </div>
+        </Dialog>
+      )}
     </>
   )
 }
