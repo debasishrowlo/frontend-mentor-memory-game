@@ -104,6 +104,7 @@ const App = () => {
   const [cell1, setCell1] = useState<number|null>(null)
   const [cell2, setCell2] = useState<number|null>(null)
   const [solved, setSolved] = useState<number[]>([])
+  const [isOpen, setIsOpen] = useState(false)
 
   const [moveCount, setMoveCount] = useState(0)
   const [secondsElapsed, setSecondsElapsed] = useState(0)
@@ -147,21 +148,9 @@ const App = () => {
     setIsPlaying(true)
   }
 
-  const newGame = () => {
-    setIsPlaying(false)
-
-    setGridSize(initialGridSize)
-    setGameType(initialGameType)
-    setNumPlayers(initialNumPlayers)
-
-    if (isSinglePlayerGame) {
-      resetGameTimer()
-    }
-  }
-
-  const restart = () => {
-    generateGrid()
-
+  const resetGame = () => {
+    setCell1(null)
+    setCell2(null)
     setSolved([])
 
     if (isSinglePlayerGame) {
@@ -171,6 +160,21 @@ const App = () => {
     } else {
       initScores()
     }
+  }
+
+  const newGame = () => {
+    resetGame()
+
+    setIsPlaying(false)
+
+    setGridSize(initialGridSize)
+    setGameType(initialGameType)
+    setNumPlayers(initialNumPlayers)
+  }
+
+  const restart = () => {
+    resetGame()
+    generateGrid()
   }
 
   const isHidden = (index:number) => {
@@ -399,14 +403,26 @@ const App = () => {
       <div className="w-full h-screen p-6 flex flex-col">
         <div className="w-full max-w-screen-lg mx-auto flex items-center justify-between">
           <Logo className="w-24 md:w-32 fill-gray-800" />
-          <div className="invisible">
-            <button type="button" className="md:hidden px-5 py-3 bg-orange-200 text-16 font-bold text-gray-100 rounded-full">
+          <div>
+            <button 
+              type="button" 
+              className="md:hidden px-5 py-3 bg-orange-200 text-16 font-bold text-gray-100 rounded-full"
+              onClick={() => setIsOpen(true)}
+            >
               Menu
             </button>
-            <button type="button" className="hidden md:inline-block px-5 py-3 bg-orange-200 hover:bg-orange-100 text-20 font-bold text-gray-100 rounded-full transition-colors duration-200">
+            <button 
+              type="button" 
+              className="hidden md:inline-block px-5 py-3 bg-orange-200 hover:bg-orange-100 text-20 font-bold text-gray-100 rounded-full transition-colors duration-200"
+              onClick={() => restart()}
+            >
               Restart
             </button>
-            <button type="button" className="hidden md:inline-block ml-4 px-5 py-3 bg-gray-300 hover:bg-gray-400 text-20 font-bold text-gray-700 rounded-full transition-colors duration-200">
+            <button 
+              type="button" 
+              className="hidden md:inline-block ml-4 px-5 py-3 bg-gray-300 hover:bg-gray-400 text-20 font-bold text-gray-700 rounded-full transition-colors duration-200"
+              onClick={() => newGame()}
+            >
               New Game
             </button>
           </div>
@@ -578,6 +594,40 @@ const App = () => {
           </div>
         </Dialog>
       )}
+      <Dialog open={isOpen} onClose={() => {}}>
+        <div className="p-6 fixed inset-0 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black opacity-50"></div>
+          <Dialog.Panel className="w-full max-w-screen-sm px-6 py-8 space-y-4 relative z-10 bg-gray-200 rounded-xl">
+            <button
+              type="button" 
+              onClick={() => {
+                restart()
+                setIsOpen(false)
+              }}
+              className="py-3 w-full bg-orange-200 text-18 font-bold text-gray-100 rounded-full"
+            >
+              Restart
+            </button>
+            <button
+              type="button" 
+              onClick={() => {
+                newGame()
+                setIsOpen(false)
+              }}
+              className="py-3 w-full bg-gray-300 text-18 font-bold text-gray-700 rounded-full"
+            >
+              Setup New Game
+            </button>
+            <button
+              type="button" 
+              onClick={() => setIsOpen(false)}
+              className="py-3 w-full bg-gray-300 text-18 font-bold text-gray-700 rounded-full"
+            >
+              Resume Game
+            </button>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
     </>
   )
 }
