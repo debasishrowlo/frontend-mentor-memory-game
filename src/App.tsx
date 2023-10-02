@@ -112,8 +112,6 @@ const App = () => {
   const [activePlayerIndex, setActivePlayerIndex] = useState(0)
   const [scores, setScores] = useState([])
 
-  const cellCount = gridSize * gridSize
-
   const iconMapRef = useRef<IconMap>()
   const iconMap = iconMapRef.current
 
@@ -125,6 +123,8 @@ const App = () => {
 
   const isGameOver = (solved:number[]) => grid.length > 1 && (grid.length === solved.length)
   const isSinglePlayerGame = numPlayers === 1
+
+  const cellCount = gridSize * gridSize
 
   const generateGrid = () => {
     gridRef.current = generateNumberGrid(cellCount)
