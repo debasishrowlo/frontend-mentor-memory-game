@@ -120,6 +120,7 @@ const App = () => {
   const grid = gridRef.current
 
   const timerRef = useRef(null)
+  const clearCellsTimeoutRef = useRef(null)
 
   const isGameOver = (solved:number[]) => grid.length > 1 && (grid.length === solved.length)
   const isSinglePlayerGame = numPlayers === 1
@@ -196,6 +197,10 @@ const App = () => {
     if (cell1 !== null && cell2 !== null) {
       setCell1(index)
       setCell2(null)
+      if (clearCellsTimeoutRef.current !== null) {
+        clearTimeout(clearCellsTimeoutRef.current)
+        clearCellsTimeoutRef.current = null
+      }
       return
     }
 
@@ -225,7 +230,7 @@ const App = () => {
         ])
       }
     } else {
-      setTimeout(() => {
+      clearCellsTimeoutRef.current = setTimeout(() => {
         setCell1(null)
         setCell2(null)
       }, 1000)
