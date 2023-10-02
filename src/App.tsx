@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import classnames from "classnames"
 import { Dialog } from "@headlessui/react"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -153,6 +153,10 @@ const App = () => {
     setGridSize(initialGridSize)
     setGameType(initialGameType)
     setNumPlayers(initialNumPlayers)
+
+    if (isSinglePlayerGame) {
+      resetGameTimer()
+    }
   }
 
   const restart = () => {
@@ -163,6 +167,7 @@ const App = () => {
     if (isSinglePlayerGame) {
       setSecondsElapsed(0)
       setMoveCount(0)
+      resetGameTimer()
     } else {
       initScores()
     }
@@ -174,6 +179,11 @@ const App = () => {
     }
 
     return !solved.includes(index)
+  }
+
+  const resetGameTimer = () => {
+    clearInterval(timerRef.current)
+    timerRef.current = null
   }
 
   const handleCellClick = (index:number) => {
@@ -218,8 +228,7 @@ const App = () => {
       setCell2(null)
 
       if (isSinglePlayerGame && isGameOver(newSolved)) {
-        clearInterval(timerRef.current)
-        timerRef.current = null
+        resetGameTimer()
       }
 
       if (!isSinglePlayerGame) {
@@ -283,7 +292,7 @@ const App = () => {
     players: [],
   }
   if (isGameOver(solved) && !isSinglePlayerGame) {
-    gameResults.players = scores.map((score, index) => ({ index, score, }))
+    gameResults.players = scores.map((score, index) => ({ index, score }))
     gameResults.players.sort((p1, p2) => p2.score - p1.score)
 
     const maxScore = gameResults.players[0].score
@@ -483,39 +492,87 @@ const App = () => {
       </div>
       {isGameOver(solved) && (
         <Dialog open={isGameOver(solved)} onClose={() => {}}>
-          <div className="fixed inset-0 flex items-center justify-center">
+          <div className="p-6 fixed inset-0 flex items-center justify-center">
             <div className="fixed inset-0 bg-black opacity-25"></div>
-            <Dialog.Panel className="p-4 relative z-10 bg-white">
+            <Dialog.Panel className="w-full px-6 py-8 relative z-10 bg-gray-200 rounded-xl">
               <>
-                {isSinglePlayerGame ? (
-                  <>
-                    <p className="text-center">You did it!</p>
-                    <p className="text-center">Moves Taken: {moveCount}</p>
-                    <p className="text-center">Time elapsed: {formatTime(secondsElapsed)}</p>
-                    <button type="button" onClick={() => restart()}>Restart</button>
-                  </>
-                ) : (
-                  <>
-                    {(gameResults.resultType === resultTypes.win) ? (
-                      <p>Player {gameResults.players[0].index + 1} Wins!</p>
-                    ) : (
-                      <p>It's a tie!</p>
-                    )}
-                    <p className="text-center">Game over! Here are the results...</p>
-                    {gameResults.players.map((player, index) => (
-                      <div className="flex justify-between" key={index}>
-                        <p>
-                          Player {player.index + 1}
-                          {(player.score === gameResults.maxScore) && (
-                            <span className="ml-1">(Winner!)</span>
-                          )}
-                        </p>
-                        <p>{player.score} Pairs</p>
+                <p className="text-center text-24 font-bold text-gray-800">
+                  {isSinglePlayerGame ? (
+                    <span>You did it!</span>
+                  ) : (
+                    <>
+                      {(gameResults.resultType === resultTypes.win) ? (
+                        <span>Player {gameResults.players[0].index + 1} Wins!</span>
+                      ) : (
+                        <span>It's a tie!</span>
+                      )}
+                    </>
+                  )}
+                </p>
+                <p className="text-center text-14 font-bold text-gray-600">
+                  {isSinglePlayerGame ? (
+                    "Game over! Here's how you got on..."
+                  ) : (
+                    "Game over! Here are the results..."
+                  )}
+                </p>
+                <div className="mt-6 space-y-2">
+                  {isSinglePlayerGame ? (
+                    <>
+                      <div className="p-4 flex justify-between items-center bg-gray-300 rounded-md">
+                        <p className="text-14 font-bold text-gray-600">Time elapsed:</p> 
+                        <p className="text-20 font-bold text-gray-700">{formatTime(secondsElapsed)}</p>
                       </div>
-                    ))}
-                    <button type="button" onClick={() => restart()}>Restart</button>
-                  </>
-                )}
+                      <div className="p-4 flex justify-between items-center bg-gray-300 rounded-md">
+                        <p className="text-14 font-bold text-gray-600">Moves Taken:</p>
+                        <p className="text-20 font-bold text-gray-700">{moveCount}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {gameResults.players.map((player, index) => {
+                        const isWinner = player.score === gameResults.maxScore
+
+                        return (
+                          <div className={classnames("p-4 flex justify-between items-center rounded-md", {
+                            "bg-gray-800": isWinner,
+                            "bg-gray-300": !isWinner,
+                          })} key={index}>
+                            <p className={classnames("text-14 font-bold", {
+                              "text-gray-600": !isWinner,
+                              "text-gray-100": isWinner,
+                            })}>
+                              Player {player.index + 1}
+                              {isWinner && <span className="ml-1">(Winner!)</span>}
+                            </p>
+                            <p className={classnames("text-20 font-bold text-gray-100", {
+                              "text-gray-700": !isWinner,
+                              "text-gray-100": isWinner,
+                            })}>
+                              {player.score} {(player.score > 1) ? "Pairs" : "Pair "}
+                            </p>
+                          </div>
+                        )
+                      })}
+                    </>
+                  )}
+                </div>
+                <div className="mt-6">
+                  <button
+                    type="button" 
+                    onClick={() => restart()}
+                    className="py-3 w-full bg-orange-200 text-18 font-bold text-gray-100 rounded-full"
+                  >
+                    Restart
+                  </button>
+                  <button
+                    type="button" 
+                    onClick={() => newGame()}
+                    className="mt-4 py-3 w-full bg-gray-300 text-18 font-bold text-gray-700 rounded-full"
+                  >
+                    Setup New Game
+                  </button>
+                </div>
               </>
             </Dialog.Panel>
           </div>
