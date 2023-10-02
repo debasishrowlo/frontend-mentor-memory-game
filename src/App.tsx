@@ -86,11 +86,9 @@ const generateIconMap = (cellCount:number) => {
 }
 
 const generateNumberGrid = (cellCount:number) => {
-  const grid = Array
-    .from(Array(Math.round(cellCount / 2)).keys())
-    .reduce((acc, cur) => [...acc, cur, cur], [])
+  const grid = Array.from(Array(Math.round(cellCount / 2)).keys())
 
-  return shuffle(grid)
+  return shuffle([...grid, ...grid])
 }
 
 const initialGridSize = 4
