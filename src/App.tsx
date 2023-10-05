@@ -159,6 +159,7 @@ const App = () => {
       resetGameTimer()
     } else {
       initScores()
+      setActivePlayerIndex(0)
     }
   }
 
